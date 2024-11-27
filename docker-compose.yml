@@ -1,0 +1,205 @@
+version: "3.5"
+
+services:
+  reverse_proxy:
+    build: ./reverse_proxy
+    container_name: reverse_proxy
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.254
+    environment:
+      - "TZ=Europe/Paris"
+    restart: always
+    ports:
+     - "0.0.0.0:8080:8080"
+     - "0.0.0.0:80:80"
+    
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    # For DHCP it is recommended to remove these ports and instead add: network_mode: "host"
+    ports:
+      - "53:53/tcp"
+      - "8888:80/tcp"
+      - "53:53/udp"
+    environment:
+      TZ: "TZ=Europe/Paris"
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.6
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    # Volumes store your data between container upgrades
+    volumes:
+      - 'pihole_data:/etc/pihole'
+      - 'dnsmasq:/etc/dnsmasq.d'
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    restart: unless-stopped
+     
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    environment:
+        - VIRTUAL_HOST=http://homeserver
+        - VIRTUAL_PORT=9443
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.2
+    ports:
+     - "9443:9443"
+    volumes:
+      - "portainer_data:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
+    
+  gogs:
+    image: gogs/gogs
+    container_name: gogs
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.4
+    ports:
+      - "3022:22/tcp"
+    volumes:
+      - "gogs_data:/data"
+      - "gogs_backup:/backup"
+    environment:
+      - "TZ=Europe/Paris"
+      - "GOGS_CUSTOM=/data/gogs"
+    restart: always
+
+  samba:
+    container_name: samba
+    image: ghcr.io/servercontainers/samba:smbd-only-latest
+    restart: always
+    network_mode: host
+    environment:
+      MODEL: 'TimeCapsule'
+
+      SAMBA_CONF_LOG_LEVEL: 3  
+
+      ACCOUNT_Fileserver: ${FILESERVER_PASSWORD}
+      UID_Fileserver: 1002
+      GROUPS_Fileserver: Gutzeit
+
+      SAMBA_VOLUME_CONFIG_fs: "[Fileserver]; path=/shares/hdd; read only = no; writeable = yes; valid users = Gutzeit Fileserver; force group = Gutzeit; force user = Fileserver; create mask = 0664; directory mask = 0775;"
+      
+    volumes:
+      - "/media/hdd/Fileserver:/shares/hdd"
+
+  syncthing:
+    image: syncthing/syncthing
+    container_name: syncthing
+    hostname: RPi
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing_data:/var/syncthing
+    ports:
+        - "22000:22000/udp"
+        - "22000:22000/tcp"
+        - "21027:21027/udp"
+    restart: unless-stopped
+      
+  wetterserver:
+    build:
+        context: ./wetterserver
+        dockerfile: Dockerfile
+        #target: release-stage
+    container_name: wetterserver
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.3
+    volumes:
+        - "weatherserver_data:/db"
+    environment:
+      - "TZ=Europe/Paris"
+    restart: always   
+    
+  melderserver:
+    build:
+        context: ./melderserver
+        dockerfile: Dockerfile
+        #target: release-stage
+    container_name: melderserver
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.5
+    volumes:
+        - "melderserver_data:/db"
+    environment:
+      - "TZ=Europe/Berlin"
+    devices:
+     - "/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0"
+    restart: always
+
+  fava:
+    container_name: fava
+    build:
+        context: ./Beancount
+        dockerfile: Dockerfile
+        #target: release-stage
+    ports:
+      - 5000:5000
+    networks:
+        frontend:
+            ipv4_address: 172.21.0.7
+    volumes:
+      - "beancount:/beancount"
+    restart: unless-stopped
+
+
+  restic:
+    container_name: restic
+    image: mazzolino/restic
+    hostname: homeserver
+    environment:
+        TZ: Europe/Berlin
+        BACKUP_CRON: "0 0 2 * * *"
+        RESTIC_REPOSITORY: /out
+        RESTIC_PASSWORD: ${RESTIC_PASSWORD}
+        RESTIC_BACKUP_SOURCES: /source
+        RESTIC_COMPRESSION: auto
+        RESTIC_FORGET_ARGS: --prune --keep-daily 7 --keep-weekly 5 --keep-monthly 12 --keep-yearly 1
+        RUN_ON_STARTUP: true
+        POST_COMMANDS_EXIT: rclone sync /out /out_remote
+    volumes:
+        - portainer_data:/source/portainer_data:ro
+        - gogs_data:/source/gogs_data:ro        
+        - weatherserver_data:/source/weatherserver_data:ro        
+        - syncthing_data:/source/syncthing_data:ro        
+        - melderserver_data:/source/melderserver_data:ro        
+        - pihole_data:/source/pihole_data:ro        
+        - dnsmasq:/source/dnsmasq:ro
+        - beancount:/source/beancount:ro
+        - /home/luis/Docker:/source/Dockerfiles:ro
+        - /home/luis/backup:/out
+        - /media/hdd/Fileserver/Luis/Homeserver_Backup:/out_remote
+
+networks:
+  frontend:
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+    name: frontend  
+    
+volumes:
+  portainer_data:
+    name: portainer_data
+  gogs_data:
+    name: gogs_data  
+  gogs_backup:
+    name: gogs_backup
+  weatherserver_data:
+    name: weatherserver_data
+  syncthing_data:
+    name: syncthing_data  
+  melderserver_data:
+    name: melderserver_data
+  pihole_data:
+    name: pihole_data  
+  dnsmasq:
+    name: dnsmasq
+  beancount:
+    name: beancount
