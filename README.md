@@ -6,10 +6,8 @@ this is the setup of my private homeserver
 - Syncthing
 - Beancount accounting with fava frontend
 - PiHole
-- Gogs Git Server
 - Weather station server
 - Portainer for container management
-- Samba Fileserver
 - server for my pager (volunteer fire department)
 
 ## Usage

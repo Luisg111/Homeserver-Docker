@@ -51,25 +51,6 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: unless-stopped
 
-  samba:
-    container_name: samba
-    image: ghcr.io/servercontainers/samba:smbd-only-latest
-    restart: always
-    network_mode: host
-    environment:
-      MODEL: 'TimeCapsule'
-
-      SAMBA_CONF_LOG_LEVEL: 3  
-
-      ACCOUNT_Fileserver: ${FILESERVER_PASSWORD}
-      UID_Fileserver: 1002
-      GROUPS_Fileserver: Gutzeit
-
-      SAMBA_VOLUME_CONFIG_fs: "[Fileserver]; path=/shares/hdd; read only = no; writeable = yes; valid users = Fileserver; force group = Gutzeit; force user = Fileserver; create mask = 0664; directory mask = 0775;"
-      
-    volumes:
-      - "/media/hdd/Fileserver:/shares/hdd"
-
   syncthing:
     image: syncthing/syncthing
     container_name: syncthing
@@ -138,6 +119,7 @@ services:
     container_name: restic
     image: mazzolino/restic
     hostname: homeserver
+    restart: unless-stopped
     environment:
         TZ: Europe/Berlin
         BACKUP_CRON: "0 0 2 * * *"
