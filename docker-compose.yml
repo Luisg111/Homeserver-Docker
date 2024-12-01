@@ -50,22 +50,6 @@ services:
       - "portainer_data:/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: unless-stopped
-    
-  gogs:
-    image: gogs/gogs
-    container_name: gogs
-    networks:
-        frontend:
-            ipv4_address: 172.21.0.4
-    ports:
-      - "3022:22/tcp"
-    volumes:
-      - "gogs_data:/data"
-      - "gogs_backup:/backup"
-    environment:
-      - "TZ=Europe/Paris"
-      - "GOGS_CUSTOM=/data/gogs"
-    restart: always
 
   samba:
     container_name: samba
@@ -81,7 +65,7 @@ services:
       UID_Fileserver: 1002
       GROUPS_Fileserver: Gutzeit
 
-      SAMBA_VOLUME_CONFIG_fs: "[Fileserver]; path=/shares/hdd; read only = no; writeable = yes; valid users = Gutzeit Fileserver; force group = Gutzeit; force user = Fileserver; create mask = 0664; directory mask = 0775;"
+      SAMBA_VOLUME_CONFIG_fs: "[Fileserver]; path=/shares/hdd; read only = no; writeable = yes; valid users = Fileserver; force group = Gutzeit; force user = Fileserver; create mask = 0664; directory mask = 0775;"
       
     volumes:
       - "/media/hdd/Fileserver:/shares/hdd"
@@ -166,7 +150,6 @@ services:
         POST_COMMANDS_EXIT: rclone sync /out /out_remote
     volumes:
         - portainer_data:/source/portainer_data:ro
-        - gogs_data:/source/gogs_data:ro        
         - weatherserver_data:/source/weatherserver_data:ro        
         - syncthing_data:/source/syncthing_data:ro        
         - melderserver_data:/source/melderserver_data:ro        
@@ -187,10 +170,6 @@ networks:
 volumes:
   portainer_data:
     name: portainer_data
-  gogs_data:
-    name: gogs_data  
-  gogs_backup:
-    name: gogs_backup
   weatherserver_data:
     name: weatherserver_data
   syncthing_data:
