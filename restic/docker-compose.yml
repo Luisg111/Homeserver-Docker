@@ -1,0 +1,47 @@
+version: "3.5"
+
+name: restic
+
+services:
+  restic:
+    container_name: restic
+    image: mazzolino/restic
+    hostname: homeserver
+    restart: unless-stopped
+    environment:
+        TZ: Europe/Berlin
+        BACKUP_CRON: "0 0 2 * * *"
+        RESTIC_REPOSITORY: /out
+        RESTIC_PASSWORD: ${RESTIC_PASSWORD}
+        RESTIC_BACKUP_SOURCES: /source
+        RESTIC_COMPRESSION: auto
+        RESTIC_FORGET_ARGS: --prune --keep-daily 7 --keep-weekly 5 --keep-monthly 12 --keep-yearly 1
+        RUN_ON_STARTUP: true
+        #POST_COMMANDS_EXIT: rclone sync /out /out_remote
+    volumes:
+        - portainer_data:/source/portainer_data:ro
+        - weatherserver_data:/source/weatherserver_data:ro        
+        - syncthing_data:/source/syncthing_data:ro        
+        - melderserver_data:/source/melderserver_data:ro        
+        - pihole_data:/source/pihole_data:ro        
+        - dnsmasq:/source/dnsmasq:ro
+        - beancount:/source/beancount:ro
+        - /home/luis/Docker:/source/Dockerfiles:ro
+        - /home/luis/backup:/out
+        #- /media/hdd/Fileserver/Luis/Homeserver_Backup:/out_remote
+
+volumes:
+  portainer_data:
+    external: true
+  weatherserver_data:
+    external: true
+  syncthing_data:
+    external: true
+  melderserver_data:
+    external: true
+  pihole_data:
+    external: true
+  dnsmasq:
+    external: true
+  beancount:
+    external: true

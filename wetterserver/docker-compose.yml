@@ -1,0 +1,27 @@
+version: "3.5"
+
+name: wetterserver
+
+services:
+  wetterserver:
+    build:
+      dockerfile: Dockerfile
+      #target: release-stage
+    container_name: wetterserver
+    volumes:
+        - "weatherserver_data:/db"
+    networks:
+     - homeserver
+    environment:
+      - "TZ=Europe/Paris"
+    restart: always
+    labels:
+      - "traefik.http.routers.wetterserver.rule=Host(`wetterserver.homeserver.lan`)"
+
+volumes:
+  weatherserver_data:
+    name: weatherserver_data
+
+networks:
+  homeserver:
+    external: true

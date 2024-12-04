@@ -15,3 +15,5 @@ USER app
 COPY --chown=app:app --chmod=0755 /app app
 
 ENTRYPOINT app/melderserver
+
+EXPOSE 8080

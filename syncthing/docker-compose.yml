@@ -1,0 +1,32 @@
+version: "3.5"
+
+name: syncthing
+
+services:
+  syncthing:
+    image: syncthing/syncthing
+    container_name: syncthing
+    hostname: RPi
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing_data:/var/syncthing
+    networks:
+     - homeserver
+    ports:
+        - "22000:22000/udp"
+        - "22000:22000/tcp"
+        - "21027:21027/udp"
+    restart: unless-stopped
+    labels:
+      - "traefik.http.routers.syncthing.rule=Host(`syncthing.homeserver.lan`)"
+
+    
+volumes:
+  syncthing_data:
+    name: syncthing_data  
+
+networks:
+  homeserver:
+    external: true

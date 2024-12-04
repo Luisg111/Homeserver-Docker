@@ -1,0 +1,26 @@
+version: "3.5"
+
+name: beancount
+
+services:
+  fava:
+    container_name: fava
+    build:
+        dockerfile: Dockerfile
+        #target: release-stage
+    networks:
+     - homeserver
+    volumes:
+      - "beancount:/beancount"
+    restart: unless-stopped
+    labels:
+      - "traefik.http.routers.fava.rule=Host(`fava.homeserver.lan`)"
+
+
+volumes:
+  beancount:
+    name: beancount
+
+networks:
+  homeserver:
+    external: true
