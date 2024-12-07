@@ -22,6 +22,7 @@ services:
       - "traefik.http.middlewares.wetterserver.headers.accesscontrolalloworiginlist=http://wetterdashboard.homeserver.lan,http://localhost:49430"
       - "traefik.http.middlewares.wetterserver.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.wetterserver.headers.addvaryheader=true"
+      - "traefik.http.routers.wetterserver.middlewares=wetterserver"
 
 volumes:
   weatherserver_data:
