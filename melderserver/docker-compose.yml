@@ -6,7 +6,10 @@ services:
   melderserver:
     build:
       dockerfile: Dockerfile
-      #target: release-stage
+      target: release-stage
+      args:
+        - GITUSER=${GITUSER}
+        - GITTOKEN=${GITTOKEN}
     container_name: melderserver
     networks:
       - homeserver

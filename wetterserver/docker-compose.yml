@@ -6,7 +6,10 @@ services:
   wetterserver:
     build:
       dockerfile: Dockerfile
-      #target: release-stage
+      target: release-stage
+      args:
+        - GITUSER=${GITUSER}
+        - GITTOKEN=${GITTOKEN}
     container_name: wetterserver
     volumes:
         - "weatherserver_data:/db"
