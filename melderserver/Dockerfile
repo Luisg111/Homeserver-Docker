@@ -1,5 +1,6 @@
 FROM alpine:latest AS release-stage
 RUN apk add --no-cache tzdata
+RUN apk add --no-cache libc6-compat 
 
 RUN adduser --disabled-password app
 
