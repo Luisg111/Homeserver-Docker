@@ -29,6 +29,8 @@ services:
         - /home/luis/Docker:/source/Dockerfiles:ro
         - /home/luis/backup:/out
         #- /media/hdd/Fileserver/Luis/Homeserver_Backup:/out_remote
+    tags:
+      - traefik.enable=false
 
 volumes:
   portainer_data:
