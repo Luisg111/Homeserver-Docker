@@ -1,0 +1,8 @@
+include:
+  - aaa_core/docker-compose.yml
+  - Beancount/docker-compose.yml
+  - melderserver/docker-compose.yml
+  - restic/docker-compose.yml
+  - reverse_proxy/docker-compose.yml
+  - syncthing/docker-compose.yml
+  - wetterserver/docker-compose.yml

@@ -9,8 +9,11 @@ this is the setup of my private homeserver
 - Weather station server
 - Portainer for container management
 - server for my pager (volunteer fire department)
+- Traefik as reverse proxy
 
 ## Usage
 everything is setup to use docker containers.
-They can be started using the up.sh file.
-Credentials and other sensitive data is stored in a .env file called creds (see empty example_creds.env).
+You can use the top level compose file to start everything or start the components individually by using the corresponding compose file.
+
+Some containers have secrets that need to be set. They contain an empty .envtemplate file.
+Copy this file and name it .env. Enter the required secrets there.
