@@ -10,6 +10,7 @@ this is the setup of my private homeserver
 - [Portainer](https://www.portainer.io/) for container management
 - [homemade "smarthome" integration for my pager](https://github.com/Luisg111/melderserver) (volunteer fire department)
 - [Weather station server](https://github.com/Luisg111/Wetterstation_server)
+- [restic](https://restic.net/) for automated backups
 
 
 ## Usage
