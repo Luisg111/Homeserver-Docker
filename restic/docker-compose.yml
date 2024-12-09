@@ -8,6 +8,8 @@ services:
     image: mazzolino/restic
     hostname: homeserver
     restart: unless-stopped
+    labels:
+      - traefik.enable=false
     environment:
         TZ: Europe/Berlin
         BACKUP_CRON: "0 0 2 * * *"
@@ -29,8 +31,6 @@ services:
         - /home/luis/Docker:/source/Dockerfiles:ro
         - /home/luis/backup:/out
         #- /media/hdd/Fileserver/Luis/Homeserver_Backup:/out_remote
-    tags:
-      - traefik.enable=false
 
 volumes:
   portainer_data:
