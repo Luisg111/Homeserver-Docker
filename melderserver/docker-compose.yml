@@ -10,6 +10,9 @@ services:
       args:
         - GITUSER=${GITUSER}
         - GITTOKEN=${GITTOKEN}
+        - ALARM_BOT_TOKEN=${ALARM_BOT_TOKEN}
+        - WEATHER_BOT_TOKEN=${WEATHER_BOT_TOKEN}
+        - ALARM_CHAT_ID=${ALARM_CHAT_ID}
     container_name: melderserver
     networks:
       - homeserver
